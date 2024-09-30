@@ -3,7 +3,7 @@
     color: #007bff;
     font-weight: bold;
 }
-.login-btn {
+.delete-btn {
     width: 100%;
     padding: 10px;
     background-color: #0088ff;
@@ -14,22 +14,3 @@
     font-weight: bold;
     height: 40px;
 }
-#signup
-{
-    background-color:  #007bff;
-    color: white;
-}
-#signup:hover
-{
-    background-color: #0056b3;
-}
-#signin
-{
-    background-color: white;
-    color: #0088ff;
-}
-#signin:hover
-{
-    background-color: #aeb8c4;
-}
-
