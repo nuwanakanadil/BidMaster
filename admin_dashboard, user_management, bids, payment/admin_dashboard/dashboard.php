@@ -70,7 +70,7 @@ $conn->close();
                 <!-- <span class="tooltip">Dashboard</span>  -->
              </li>
              <li>
-                    <a href="Admin-feedback-pannel.php">
+                    <a href="Contact Us/Admin-feedback-pannel.php">
                     <i class='bx bxs-message-dots' ></i>
                     <span class="links_name">Feedback</span>
                     </a>
