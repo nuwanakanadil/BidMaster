@@ -69,6 +69,13 @@ $conn->close();
                 </a>
                 <!-- <span class="tooltip">Dashboard</span>  -->
              </li>
+             <li>
+                    <a href="Admin-feedback-pannel.php">
+                    <i class='bx bxs-message-dots' ></i>
+                    <span class="links_name">Feedback</span>
+                    </a>
+                    <!-- <span class="tooltip">Dashboard</span>  -->
+            </li>
         </ul>
         <div class="profile_content">
             <div class="profile">
