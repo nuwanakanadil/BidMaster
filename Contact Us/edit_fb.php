@@ -43,9 +43,9 @@
     .update_container .secondry-line form {
         margin-top: -10%;
     }
-    #message {
-        height: 10%;
-
+    .mid-line {
+        padding-top: 10%;
+        padding-left: 10%;
     }
 </style>
 <body>
@@ -61,7 +61,7 @@
         </div>
     </header>
     <div class="update_container">
-        <div class="secondry-line">
+        <div class="mid-line">
             <?php if (isset($name) && isset($message)): ?>
                 <form action="update.php" method="POST" class="edit-form">
                 <label for="name">Name:</label>
@@ -70,7 +70,7 @@
                         <label for="email">Email:</label>
                         <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" readonly><br> <!-- Email is readonly for editing -->
 
-                        <label for="message">Message:</label>
+                        <label for="message">Message:</label> <br>
                         <textarea name="message" id="message">
                             <?php echo htmlspecialchars($message); ?>
                         </textarea>
