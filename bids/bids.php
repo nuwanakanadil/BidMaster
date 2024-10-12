@@ -11,27 +11,48 @@ if ($conn->connect_error) {
 $currentDateTime = date('Y-m-d H:i:s');
 
 // Query to find expired bids (where ending_date is earlier than now)
-$sql = "SELECT Item_ID FROM bids WHERE ending_date < '$currentDateTime'";
-$result = $conn->query($sql);
+$sql = "SELECT b.Item_ID, b.highest_bid, b.username, bi.image_path
+        FROM bids b
+        LEFT JOIN bid_items bi ON b.Item_ID = bi.Item_ID
+        WHERE ending_date < ?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param('s', $currentDateTime);
+$stmt->execute();
+$result = $stmt->get_result();
 
 if ($result->num_rows > 0) {
-    // Loop through each expired bid and delete from both tables
+    // Loop through each expired bid and add it to won_bid table, then delete from bids and bid_items tables
     while ($row = $result->fetch_assoc()) {
         $itemId = $row['Item_ID'];
+        $highestBid = $row['highest_bid'];
+        $username = $row['username'];
+        $image_path = $row['image_path'];
+
+        // Insert into won_bid table
+        $insertWonBidSql = "INSERT INTO won_bid (Item_ID, Price, username, image_path) VALUES (?, ?, ?, ?)";
+        $insertWonBidStmt = $conn->prepare($insertWonBidSql);
+        $insertWonBidStmt->bind_param('iiss', $itemId, $highestBid, $username, $image_path);
+        $insertWonBidStmt->execute();
 
         // Delete from bids table using Item_ID
-        $deleteBidSql = "DELETE FROM bids WHERE Item_ID = '$itemId'";
-        $conn->query($deleteBidSql);
+        $deleteBidSql = "DELETE FROM bids WHERE Item_ID = ?";
+        $deleteBidStmt = $conn->prepare($deleteBidSql);
+        $deleteBidStmt->bind_param('i', $itemId);
+        $deleteBidStmt->execute();
 
         // Delete from bid_items table using Item_ID
-        $deleteItemSql = "DELETE FROM bid_items WHERE Item_ID = '$itemId'";
-        $conn->query($deleteItemSql);
+        $deleteItemSql = "DELETE FROM bid_items WHERE Item_ID = ?";
+        $deleteItemStmt = $conn->prepare($deleteItemSql);
+        $deleteItemStmt->bind_param('i', $itemId);
+        $deleteItemStmt->execute();
     }
 }
 
 // Close the connection
+$stmt->close();
 $conn->close();
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -92,13 +113,13 @@ $conn->close();
     <div class="profile_content">
         <div class="profile">
             <div class="profile_details">
-                <img src="icon-5359553_640.webp" alt="" id="profile_view">
-                <div class="name_job">
-                    <div class="name">Admin</div>
-                    <div class="job">System Administrator</div>
+            <a href="../homesigned/profile.php"><img src="icon-5359553_640.webp" alt="" id="profile_view"></a>
+                    <div class="name_job">
+                        <div class="name">Admin</div>
+                        <div class="job">System Administrator</div>
+                    </div>
                 </div>
-            </div>
-            <i class='bx bx-log-out' id="log_out"></i>
+                <a href="../homesigned/home.php"><i class='bx bx-log-out' id="log_out"></i></a>
         </div>
     </div>
 </div>
@@ -204,7 +225,8 @@ $conn->close();
                 }
 
                 // Fetch data from database
-                $sql = "SELECT bid_id, Item_ID, started_bid, highest_bid, started_date, ending_date FROM bids";
+                $sql = "SELECT bid_id, Item_ID, started_bid, highest_bid, started_date, ending_date FROM bids
+                WHERE ending_date >= NOW()";
                 $result = $conn->query($sql);
 
                 if ($result->num_rows > 0) {

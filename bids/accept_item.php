@@ -40,16 +40,16 @@ if (isset($_POST['id'])) {
             }
 
             // Move the item to bid_items table, including the image path
-            $sqlInsert = "INSERT INTO bid_items (Item_ID, Conditions, Brand, Model, Price, Description, image_path) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            $sqlInsert = "INSERT INTO bid_items (Item_ID, seller_username, Conditions, Brand, Model, Price, Description, image_path) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmtInsert = $conn->prepare($sqlInsert);
             if (!$stmtInsert) {
                 throw new Exception("Error preparing insert statement: " . $conn->error);
             }
-            $stmtInsert->bind_param('isssiss', $row['Item_ID'], $row['Conditions'], $row['Brand'], $row['Model'], $row['Price'], $row['Description'], $imagePath);
+            $stmtInsert->bind_param('issssiss', $row['Item_ID'], $row['seller_username'], $row['Conditions'], $row['Brand'], $row['Model'], $row['Price'], $row['Description'], $imagePath);
 
 
             // Insert into bids table (with default values for bidding)
-            $sqlInsertBid = "INSERT INTO bids (Item_ID, started_bid, highest_bid, started_date, ending_date) VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY))";
+            $sqlInsertBid = "INSERT INTO bids (Item_ID, started_bid, highest_bid, started_date, ending_date) VALUES (?, ?, ?, NOW(), DATE_ADD(NOW(), INTERVAL 5 DAY))";
             $started_bid = $row['Price'];
             $highest_bid = $row['Price']; // Assuming starting bid is the initial price
             $stmtInsertBid = $conn->prepare($sqlInsertBid);
