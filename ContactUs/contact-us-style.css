@@ -1,4 +1,5 @@
 body {
+    background: url(Navy\ Blue\ Background\ in\ Illustrator\,\ SVG\,\ JPG\,\ EPS\,\ PNG\ -\ Download\ _\ Template_net.jpeg);
     overflow-x: hidden;
     background-attachment: fixed;
     background-size: cover;
@@ -36,7 +37,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;            
+    align-items: center;  
+    margin-top: 10%;          
 }
 .chat-box {
     width: 300px;
@@ -117,7 +119,7 @@ body {
     position: relative;
 }
 .behind-the-canvas {
-    color: #031f2b;
+    color: #bfe0ee;
     text-shadow: 20px 20px 20px #031f2b;
     margin: 0px;
     z-index: 0;

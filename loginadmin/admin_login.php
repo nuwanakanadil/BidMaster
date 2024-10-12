@@ -1,10 +1,15 @@
 <?php
 
+// Start session
+session_start();
+
+$username = $_SESSION['username'];
+
 // Database connection parameters
 $host = 'localhost';
-$dbname = 'auctionsystem';  
-$dbUsername = 'root';  
-$dbPassword = '';
+$dbname = 'auctionsystem';
+$dbUsername = 'root';
+$dbPassword = ''; 
 
 try {
     // Create a new PDO instance
@@ -29,21 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
         // Check if user exists and verify the password
-        if ($user && isset($user['password_hash']) && password_verify($inputPassword, $user['password_hash'])) { 
-            // Set session variable for the logged-in user
-            $_SESSION['username'] = $user['username']; // Storing username in session
-            $_SESSION['user_id'] = $user['admin_id']; // Storing admin_id for later use if needed
-
-            // If password is correct, redirect to dashboard
+        if ($user && isset($user['password_hash']) && password_verify($inputPassword, $user['password_hash'])) {
+            // If password is correct, redirect to home.html
             header("Location: ../admindashboard/dashboard.php");
             exit();
         } else {
-            // If credentials are wrong, show an alert
-            echo "<script>alert('Invalid username or password');
-            window.location.href = 'admin_login.html';
-            </script>";
-            
+            echo "<script>alert('Invalid username or password.');
+                  window.location.href = '../adminforgotpsd/admin_forgotpsd.html';</script>";;
         }
     }
 }
 ?>
+
+

@@ -246,13 +246,13 @@ $result = $conn->query($sql);
             <div class="profile_content">
                 <div class="profile">
                     <div class="profile_details">
-                        <img src="../admindashboard/icon-5359553_640.webp" alt="" id="profile_view">
-                        <div class="name_job">
-                            <div class="name">Admin</div>
-                            <div class="job">System Administrator</div>
-                        </div>
+                    <a href="../homesigned/profile.php"><img src="icon-5359553_640.webp" alt="" id="profile_view"></a>
+                    <div class="name_job">
+                        <div class="name">Admin</div>
+                        <div class="job">System Administrator</div>
                     </div>
-                    <i class='bx bx-log-out' id="log_out"></i>
+                </div>
+                <a href="../homesigned/home.php"><i class='bx bx-log-out' id="log_out"></i></a>
                 </div>
             </div>
         </div>

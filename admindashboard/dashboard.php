@@ -87,13 +87,13 @@ $conn->close();
         <div class="profile_content">
             <div class="profile">
                 <div class="profile_details">
-                    <img src="icon-5359553_640.webp" alt="" id="profile_view">
+                <a href="../homesigned/profile.php"><img src="icon-5359553_640.webp" alt="" id="profile_view"></a>
                     <div class="name_job">
                         <div class="name">Admin</div>
                         <div class="job">System Administrator</div>
                     </div>
                 </div>
-                <i class='bx bx-log-out' id="log_out"></i>
+                <a href="../homesigned/home.php"><i class='bx bx-log-out' id="log_out"></i></a>
             </div>
         </div>
     </div>
@@ -126,7 +126,7 @@ $conn->close();
                 <div class="card">
                     <div>
                         <div class="numbers"><?php echo $itemCount; ?></div>
-                        <div class="cardName">Items Count</div>
+                        <div class="cardName">Items Count (To Accept)</div>
                     </div>
                     <div class="iconBx">
                         <ion-icon name="cube-outline"></ion-icon>
