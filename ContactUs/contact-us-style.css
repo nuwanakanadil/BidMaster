@@ -121,7 +121,7 @@ body {
 .behind-the-canvas {
     color: #bfe0ee;
     text-shadow: 20px 20px 20px #031f2b;
-    margin: 0px;
+    margin: -50px;
     z-index: 0;
 }
 .modal {
@@ -201,26 +201,7 @@ body {
     inset: 0;
     transform: rotateY(calc((var(--position) - 1) * (360 / var(--quantity)) * 1deg)) translateZ(100px);
 }
-.slider .item .btn-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: 30px;
-    transition: 200ms;
-}
-.slider .item .btn-img img:hover {
-    width: 110%;
-    height: calc(110%);
-    object-fit: cover;
-    border-radius: 20px;
-    box-shadow: 10px 10px 40px 7px rgb(172, 172, 172);
-    transition: 400ms;
-}
-.slider .item .btn-img img:active {
-    width: 98%;
-    height: 98%;
-    object-fit: cover;
-}
+
 .btn-img {
     border: none;
     width: 160px;

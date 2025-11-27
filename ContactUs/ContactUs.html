@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -11,29 +10,390 @@
     <link rel="stylesheet" href="navbar.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.rawgit.com/neocotic/qrious/master/dist/qrious.min.js"></script>
-    <script>
-        function editMessage(id, name, email, message) {
-            // Fill the form with existing data for editing
-            document.getElementById('name').value = name;
-            document.getElementById('email').value = email;
-            document.getElementById('message').value = message;
-            document.getElementById('submit-button').value = "Update Message"; // Change button text to 'Update'
-            document.getElementById('message-id').value = id; // Store message ID to identify the message being edited
+    <style>
+        /* Hidden sections styling */
+        .hidden-section {
+            display: none;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        function deleteMessage(id) {
-            // Send request to delete the message
-            if (confirm("Are you sure you want to delete this message?")) {
-                window.location.href = "test.php?delete=" + id;
+        .hidden-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        .search-box button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .search-box button:hover {
+            background: #45a049;
+        }
+
+        .notes-container {
+            margin-top: 20px;
+        }
+
+        .note-item {
+            background: white;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            color: #333;
+        }
+
+        .note-item h3 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+        }
+
+        .note-item p {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .note-item .note-email {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+
+        .note-item .note-message {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-left: 3px solid #4CAF50;
+        }
+
+        .note-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .note-actions button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
+        }
+
+        .btn-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .edit-form {
+            display: none;
+            margin-top: 15px;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 4px;
+        }
+
+        .edit-form.active {
+            display: block;
+        }
+
+        .edit-form input,
+        .edit-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .edit-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .section-toggle-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .section-toggle-buttons button {
+            flex: 1;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .btn-show-edit {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-show-edit:hover {
+            background: #2980b9;
+        }
+
+        .btn-show-delete {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .btn-show-delete:hover {
+            background: #c0392b;
+        }
+
+        .no-notes {
+            padding: 20px;
+            text-align: center;
+            color: #7f8c8d;
+            font-style: italic;
+        }
+
+        .close-section {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #e74c3c;
+        }
+
+        .close-section:hover {
+            color: #c0392b;
+        }
+    </style>
+    <script>
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const allSections = document.querySelectorAll('.hidden-section');
+            
+            // Close all sections
+            allSections.forEach(s => {
+                if (s.id !== sectionId) {
+                    s.classList.remove('active');
+                }
+            });
+            
+            // Toggle the clicked section
+            section.classList.toggle('active');
+        }
+
+        function closeSection(sectionId) {
+            document.getElementById(sectionId).classList.remove('active');
+        }
+
+        function searchNotes(mode) {
+            const username = document.getElementById(mode + '-username').value.trim();
+            
+            if (!username) {
+                alert('Please enter a username to search');
+                return;
             }
+
+            // Send AJAX request to search for notes
+            fetch('search_notes.php?username=' + encodeURIComponent(username))
+                .then(response => response.json())
+                .then(data => {
+                    displayNotes(data, mode);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error searching for notes');
+                });
+        }
+
+        function displayNotes(notes, mode) {
+            const container = document.getElementById(mode + '-results');
+            
+            if (notes.length === 0) {
+                container.innerHTML = '<div class="no-notes">No notes found for this username</div>';
+                return;
+            }
+
+            let html = '';
+            notes.forEach(note => {
+                html += `
+                    <div class="note-item" id="note-${note.id}">
+                        <h3>${escapeHtml(note.name)}</h3>
+                        <p class="note-email">${escapeHtml(note.email)}</p>
+                        <div class="note-message">${escapeHtml(note.message)}</div>
+                        <div class="note-actions">
+                            ${mode === 'edit' ? 
+                                `<button class="btn-edit" onclick="showEditForm(${note.id}, '${escapeHtml(note.name)}', '${escapeHtml(note.email)}', '${escapeHtml(note.message)}')">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>` : 
+                                `<button class="btn-delete" onclick="deleteNote(${note.id})">
+                                    <i class="fas fa-trash"></i> Delete
+                                </button>`
+                            }
+                        </div>
+                        ${mode === 'edit' ? `
+                            <div class="edit-form" id="edit-form-${note.id}">
+                                <input type="text" id="edit-name-${note.id}" value="${escapeHtml(note.name)}" placeholder="Name">
+                                <input type="email" id="edit-email-${note.id}" value="${escapeHtml(note.email)}" placeholder="Email">
+                                <textarea id="edit-message-${note.id}" placeholder="Message">${escapeHtml(note.message)}</textarea>
+                                <button class="btn-edit" onclick="updateNote(${note.id})">
+                                    <i class="fas fa-save"></i> Save Changes
+                                </button>
+                                <button class="btn-cancel" onclick="hideEditForm(${note.id})">
+                                    <i class="fas fa-times"></i> Cancel
+                                </button>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function showEditForm(id, name, email, message) {
+            // Hide all other edit forms
+            document.querySelectorAll('.edit-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            // Show this edit form
+            document.getElementById('edit-form-' + id).classList.add('active');
+        }
+
+        function hideEditForm(id) {
+            document.getElementById('edit-form-' + id).classList.remove('active');
+        }
+
+        function updateNote(id) {
+            const name = document.getElementById('edit-name-' + id).value.trim();
+            const email = document.getElementById('edit-email-' + id).value.trim();
+            const message = document.getElementById('edit-message-' + id).value.trim();
+
+            if (!name || !email || !message) {
+                alert('All fields are required');
+                return;
+            }
+
+            // Send update request
+            fetch('update_note.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${id}&name=${encodeURIComponent(name)}&email=${encodeURIComponent(email)}&message=${encodeURIComponent(message)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Note updated successfully!');
+                    // Refresh the search results
+                    const username = document.getElementById('edit-username').value;
+                    searchNotes('edit');
+                } else {
+                    alert('Error updating note: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error updating note');
+            });
+        }
+
+        function deleteNote(id) {
+            if (!confirm('Are you sure you want to delete this note?')) {
+                return;
+            }
+
+            // Send delete request
+            fetch('delete_note.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `id=${id}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Note deleted successfully!');
+                    // Remove the note from display
+                    document.getElementById('note-' + id).remove();
+                    
+                    // Check if there are any notes left
+                    const container = document.getElementById('delete-results');
+                    if (container.children.length === 0) {
+                        container.innerHTML = '<div class="no-notes">No notes found for this username</div>';
+                    }
+                } else {
+                    alert('Error deleting note: ' + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting note');
+            });
         }
     </script>
 </head>
 <body>
     <header>
-        
         <div class="nav-container">
-            <img src="../logo.jpg" alt="Logo" class="logo">
+            <img src="images/logo.jpg" alt="Logo" class="logo">
             <nav>
                 <a href="../home.html"><i class="fas fa-home"></i>Home</a> /
                 <a href="../AboutUs/About.html"><i class="fas fa-info-circle"></i>About</a> /
@@ -42,197 +402,220 @@
         </div>
     </header>
     <div class="main-body">
-    <div class="container">
-        <div class="canvas">
-            <div>
-                <h1> Location </h1>
-                <p>
-                    No.124/12,<br>
-                    2nd lane,<br>
-                    Bandaranayake Street,<br>
-                    Colombo 05,<br>
-                    Sri Lanka
-                </p>
-            </div>
-            <div>
-                <h1> Call Us </h1>
-                <h3>Customer Support</h3>
-                <p>
-                    +94 11 234 5678<br>
-                    +94 11 234 5678
-                </p>
-                <h3>General Inquiry</h3>
-                <p>
-                    +94 11 234 5678<br>
-                    +94 11 234 5678
-                </p>
-                <h3>Warehouse</h3>
-                <p>
-                    +94 78 231 3425
-                </p>
-            </div>
-            <div>
-                <h1> Other contacts </h1>
-                <div class="social-icons">
-                    <button class="social-btn"><img src="../images/FB.gif" alt="Facebook" class="icon"></button>
-                    <button class="social-btn"><img src="../images/WA.gif" alt="Whatsapp" class="icon"></button>
-                    <button class="social-btn"><img src="../images/GM.gif" alt="Gmail" class="icon"></button>
-                    <button class="social-btn"><img src="../images/IG.gif" alt="Facebook" class="icon"></button>
+        <div class="container">
+            <div class="canvas">
+                <div>
+                    <h1> Location </h1>
+                    <p>
+                        No.124/12,<br>
+                        2nd lane,<br>
+                        Bandaranayake Street,<br>
+                        Colombo 05,<br>
+                        Sri Lanka
+                    </p>
+                </div>
+                <div>
+                    <h1> Call Us </h1>
+                    <h3>Customer Support</h3>
+                    <p>
+                        +94 11 234 5678<br>
+                        +94 11 234 5678
+                    </p>
+                    <h3>General Inquiry</h3>
+                    <p>
+                        +94 11 234 5678<br>
+                        +94 11 234 5678
+                    </p>
+                    <h3>Warehouse</h3>
+                    <p>
+                        +94 78 231 3425
+                    </p>
+                </div>
+                <div>
+                    <h1> Other contacts </h1>
+                    <div class="social-icons">
+                        <button class="social-btn"><img src="../images/FB.gif" alt="Facebook" class="icon"></button>
+                        <button class="social-btn"><img src="../images/WA.gif" alt="Whatsapp" class="icon"></button>
+                        <button class="social-btn"><img src="../images/GM.gif" alt="Gmail" class="icon"></button>
+                        <button class="social-btn"><img src="../images/IG.gif" alt="Facebook" class="icon"></button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <div class="text-banner">
-        <div class="slider" style="--quantity: 9">
-            <div class="item" style="--position: 9"><p>B</p></div>
-            <div class="item" style="--position: 8"><p>I</p></div>
-            <div class="item" style="--position: 7"><p>D</p></div>
-            <div class="item" style="--position: 6"><p>M</p></div>
-            <div class="item" style="--position: 5"><p>A</p></div>
-            <div class="item" style="--position: 4"><p>S</p></div>
-            <div class="item" style="--position: 3"><p>T</p></div>
-            <div class="item" style="--position: 2"><p>E</p></div>
-            <div class="item" style="--position: 1"><p>R</p></div>
-        </div>
-    </div>
-    <div class="highclass-mid">
-        <div class="midpart">
-            <div class="slider-container">
-                <div class="image-slider">
-                    <div class="item active">
-                        <img src="../images/slider-images/Vehicle.png">
-                        <div class="content">
-                            <p>BIDMASTER</p>
-                            <h2>Vehicle</h2>
-                            <p class="img-text">
-                                A seamless bidding experience, allowing you to compete for your preferred vehicles effortlessly and transparently. Bid confidently and secure the best deals on a wide range of vehicles.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Properties.png">
-                        <div class="content">
-                            <p>BIDMASTER</p>
-                            <h2>Properties</h2>
-                            <p class="img-text">
-                                An unmatched bidding experience for land and properties, allowing you to compete transparently and confidently. Secure your desired properties at the best prices with ease.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Jewellary.png">
-                        <div class="content">
-                            <p>BIDMASTER</p>
-                            <h2>Jewellary</h2>
-                            <p class="img-text">
-                                A premium bidding experience for exquisite jewelry, allowing you to compete transparently and confidently. Bid on stunning pieces and secure the best deals with ease.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Arts and music.png">
-                        <div class="content">
-                            <p>BIDMASTER</p>
-                            <h2>Arts & Music</h2>
-                            <p class="img-text">
-                                A unique bidding experience for art and music collectibles, allowing you to compete effortlessly and transparently. Discover and acquire your favorite pieces at the best prices.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Antiques.png">
-                        <div class="content">
-                            <p>BIDMASTER</p>
-                            <h2>Antiques</h2>
-                            <p class="img-text">
-                                an exclusive bidding experience for rare antiques, offering you the chance to compete transparently and confidently. Discover timeless treasures and secure them at the best prices.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                <div class="arrows">
-                    <button id="prev"><</button>
-                    <button id="next">></button>
-                </div>
-                <div class="thumbnail">
-                    <div class="item active">
-                        <img src="../images/slider-images/Vehicle.png">
-                        <div class="content">
-                            Vehicle
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Properties.png">
-                        <div class="content">
-                            Properties
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Jewellary.png">
-                        <div class="content">
-                            Jewellary
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Arts and music.png">
-                        <div class="content">
-                            Arts & Music
-                        </div>
-                    </div>
-                    <div class="item">
-                        <img src="../images/slider-images/Antiques.png">
-                        <div class="content">
-                            Antiques
-                        </div>
-                    </div>
-                </div>
+        <div class="text-banner">
+            <div class="slider" style="--quantity: 9">
+                <div class="item" style="--position: 9"><p>B</p></div>
+                <div class="item" style="--position: 8"><p>I</p></div>
+                <div class="item" style="--position: 7"><p>D</p></div>
+                <div class="item" style="--position: 6"><p>M</p></div>
+                <div class="item" style="--position: 5"><p>A</p></div>
+                <div class="item" style="--position: 4"><p>S</p></div>
+                <div class="item" style="--position: 3"><p>T</p></div>
+                <div class="item" style="--position: 2"><p>E</p></div>
+                <div class="item" style="--position: 1"><p>R</p></div>
             </div>
-            <div class="secondry-line">
-                <form action="../Feedback/feedback.php" method="POST" class="message-form">
-                    <legend>Keep a note</legend>
+        </div>
+        <div class="highclass-mid">
+            <div class="midpart">
+                <div class="slider-container">
+                    <div class="image-slider">
+                        <div class="item active">
+                            <img src="images/image slider/Vehicle.png">
+                            <div class="content">
+                                <p>BIDMASTER</p>
+                                <h2>Vehicle</h2>
+                                <p class="img-text">
+                                    A seamless bidding experience, allowing you to compete for your preferred vehicles effortlessly and transparently. Bid confidently and secure the best deals on a wide range of vehicles.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Properties.png">
+                            <div class="content">
+                                <p>BIDMASTER</p>
+                                <h2>Properties</h2>
+                                <p class="img-text">
+                                    An unmatched bidding experience for land and properties, allowing you to compete transparently and confidently. Secure your desired properties at the best prices with ease.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Antiques.png">
+                            <div class="content">
+                                <p>BIDMASTER</p>
+                                <h2>Jewellary</h2>
+                                <p class="img-text">
+                                    A premium bidding experience for exquisite jewelry, allowing you to compete transparently and confidently. Bid on stunning pieces and secure the best deals with ease.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Jewellary.png">
+                            <div class="content">
+                                <p>BIDMASTER</p>
+                                <h2>Arts & Music</h2>
+                                <p class="img-text">
+                                    A unique bidding experience for art and music collectibles, allowing you to compete effortlessly and transparently. Discover and acquire your favorite pieces at the best prices.
+                                </p>
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Arts and music.png">
+                            <div class="content">
+                                <p>BIDMASTER</p>
+                                <h2>Antiques</h2>
+                                <p class="img-text">
+                                    an exclusive bidding experience for rare antiques, offering you the chance to compete transparently and confidently. Discover timeless treasures and secure them at the best prices.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="arrows">
+                        <button id="prev"><</button>
+                        <button id="next">></button>
+                    </div>
+                    <div class="thumbnail">
+                        <div class="item active">
+                            <img src="images/image slider/Vehicle.png">
+                            <div class="content">
+                                Vehicle
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Properties.png">
+                            <div class="content">
+                                Properties
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Antiques.png">
+                            <div class="content">
+                                Jewellary
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Jewellary.png">
+                            <div class="content">
+                                Arts & Music
+                            </div>
+                        </div>
+                        <div class="item">
+                            <img src="images/image slider/Arts and music.png">
+                            <div class="content">
+                                Antiques
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="secondry-line">
+                    <form action="save_note.php" method="POST" class="message-form">
+                        <legend>Keep a note</legend>
+                        
+                        <label for="name">Name:</label>
+                        <input type="text" id="name" name="name" required>
+                
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                
+                        <label for="message">Message:</label>
+                        <textarea id="message" name="message" required></textarea>
+                
+                        <div class="form-buttons">
+                            <input type="submit" name="submit" value="Send" class="form-button" id="submit-button">
+                        </div>
+                    </form>
                     
-                    <label for="name">Name:</label>
-                    <input type="text" id="name" name="name" required>
-            
-                    <label for="email">Email:</label>
-                    <input type="email" id="email" name="email" required>
-            
-                    <label for="message">Message:</label>
-                    <textarea id="message" name="message" required></textarea>
-            
-                    <!-- Hidden field to store the message ID for editing -->
-                    <input type="hidden" id="message-id" name="message_id">
-            
-                    <div class="form-buttons">
-                        <input type="submit" name="submit" value="Send" class="form-button" id="submit-button">
+                    <div class="section-toggle-buttons">
+                        <button class="btn-show-edit" onclick="toggleSection('edit-section')">
+                            <i class="fas fa-edit"></i> Edit My Notes
+                        </button>
+                        <button class="btn-show-delete" onclick="toggleSection('delete-section')">
+                            <i class="fas fa-trash"></i> Delete My Notes
+                        </button>
                     </div>
-                </form>
-                <a href="../Feedback/edit_feedback.html"><button name="edit" value="Edit" class="form-button" style="z-index: 8;">Edit</button></a>
-            
-                <div id="reviewSection" style="margin-top: 20px;">
-                    <?php include 'test.php'; // This will load the PHP to show messages ?>
+
+                    <!-- Edit Section -->
+                    <div id="edit-section" class="hidden-section">
+                        <span class="close-section" onclick="closeSection('edit-section')">&times;</span>
+                        <h2>Edit Your Notes</h2>
+                        <div class="search-box">
+                            <input type="text" id="edit-username" placeholder="Enter your username to search notes">
+                            <button onclick="searchNotes('edit')"><i class="fas fa-search"></i> Search Notes</button>
+                        </div>
+                        <div id="edit-results" class="notes-container"></div>
+                    </div>
+
+                    <!-- Delete Section -->
+                    <div id="delete-section" class="hidden-section">
+                        <span class="close-section" onclick="closeSection('delete-section')">&times;</span>
+                        <h2>Delete Your Notes</h2>
+                        <div class="search-box">
+                            <input type="text" id="delete-username" placeholder="Enter your username to search notes">
+                            <button onclick="searchNotes('delete')"><i class="fas fa-search"></i> Search Notes</button>
+                        </div>
+                        <div id="delete-results" class="notes-container"></div>
+                    </div>
                 </div>
-            </div>
-        </div> 
-    </div>
-    <div>
+            </div> 
+        </div>
         <div>
-            <div class="user-comand">
-                <h1 class="behind-the-canvas">Say <br/>Hi</h1>
-            </div>
-            <div class="chatContainer">
-                <div class="chat-box" id="chat-container">
+            <div>
+                <div class="user-comand">
+                    <h1 class="behind-the-canvas">Say <br/>Hi</h1>
                 </div>
-                <input type="text" id="chat-input" placeholder="Type a message...">
+                <div class="chatContainer">
+                    <div class="chat-box" id="chat-container">
+                    </div>
+                    <input type="text" id="chat-input" placeholder="Type a message...">
+                </div>
             </div>
         </div>
-    </div>
-    <div id="qrModal" class="modal">
-        <div class="modal-content">
-            <span class="close" onclick="closeModal()">&times;</span>
-            <canvas id="qr-code"></canvas>
+        <div id="qrModal" class="modal">
+            <div class="modal-content">
+                <span class="close" onclick="closeModal()">&times;</span>
+                <canvas id="qr-code"></canvas>
+            </div>
         </div>
-    </div>
     </div>
     <footer>
         <div class="social-media">
@@ -240,10 +623,9 @@
             <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
             <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
             <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
-            
         </div>
         <div class="logo-container">
-        <img src="../logo.jpg" alt="Logo" class="footer-logo">
+            <img src="../logo.jpg" alt="Logo" class="footer-logo">
         </div>
         <div class="footer-bottom">
             <p>&copy; 2024 BIDMASTER ONLINE AUCTION. All rights reserved</p>
